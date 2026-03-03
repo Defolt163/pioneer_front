@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 
 const AUTH_KEY = 'pioneer_user'
+const TOKEN_KEY = 'pioneer_token'
 
 export function useAuth() {
   const [user, setUser] = useState(null)
@@ -17,14 +18,16 @@ export function useAuth() {
     setLoading(false)
   }, [])
 
-  const login = (phone) => {
-    const userData = { phone, loggedAt: Date.now() }
+  const login = (email, token) => {
+    const userData = { email, loggedAt: Date.now() }
     localStorage.setItem(AUTH_KEY, JSON.stringify(userData))
+    if (token) localStorage.setItem(TOKEN_KEY, token)
     setUser(userData)
   }
 
   const logout = () => {
     localStorage.removeItem(AUTH_KEY)
+    localStorage.removeItem(TOKEN_KEY)
     setUser(null)
   }
 

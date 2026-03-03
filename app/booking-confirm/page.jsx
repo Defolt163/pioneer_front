@@ -83,11 +83,11 @@ export default function BookingConfirmPage() {
         </div>
         <div style={{
           width: '100%', padding: '12px 16px',
-          background: '#fef3c7', borderRadius: '10px',
-          border: '1px solid #fcd34d', marginBottom: '32px',
+          background: '#e8effc', borderRadius: '10px',
+          border: '1px solid #c3d4f7', marginBottom: '32px',
         }}>
-          <p style={{ fontSize: '13px', color: '#92400e', lineHeight: 1.5, margin: 0 }}>
-            ⚠️ Подтверждение записи осуществляется по телефону. Ожидайте звонка от организации.
+          <p style={{ fontSize: '13px', color: '#1a56db', lineHeight: 1.5, margin: 0 }}>
+            ✉️ Подтверждение записи будет отправлено на вашу почту. Проверьте входящие письма.
           </p>
         </div>
         <button

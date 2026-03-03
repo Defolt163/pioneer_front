@@ -11,12 +11,22 @@ async function request(endpoint, options = {}) {
     ...options,
   }
 
-  const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null
+  const token = typeof window !== 'undefined' ? localStorage.getItem('pioneer_token') : null
   if (token) {
     config.headers['Authorization'] = `Bearer ${token}`
   }
 
   const response = await fetch(url, config)
+
+  // токен истёк или недействителен — разлогиниваем и редиректим на вход
+  if (response.status === 401) {
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('pioneer_user')
+      localStorage.removeItem('pioneer_token')
+      window.location.href = '/login'
+    }
+    throw new Error('Сессия истекла. Войдите снова.')
+  }
 
   if (!response.ok) {
     const error = await response.json().catch(() => ({ message: 'Ошибка сервера' }))
