@@ -1,10 +1,10 @@
-export default function Button({ children, onClick, className, variant = 'primary', fullWidth, disabled, style }) {
+export default function Button({ children, onClick, className, variant = 'primary', fullWidth, customWidth, disabled, style, customFontSize=false }) {
   const base = {
-    width: fullWidth ? '100%' : 'auto',
-    padding: '14px 20px',
+    width: customWidth ? customWidth : fullWidth ? '100%' : 'auto',
+    padding: customWidth ? customWidth : '14px 20px',
     borderRadius: '10px',
     fontFamily: 'var(--font-body)',
-    fontSize: '15px',
+    fontSize: !customFontSize ? '15px' : 'auto',
     fontWeight: 600,
     cursor: disabled ? 'not-allowed' : 'pointer',
     border: 'none',
@@ -28,6 +28,10 @@ export default function Button({ children, onClick, className, variant = 'primar
       background: 'var(--primary-light)',
       color: 'var(--primary)',
     },
+    red: {
+      background: '#9b0505',
+      color: '#fff',
+    }
   }
 
   return (
