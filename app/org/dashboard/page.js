@@ -2,15 +2,46 @@
 import Button from "@/components/ui/Button";
 import TopBar from "@/components/ui/TopBar";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTrigger } from "@/componentsShadCN/ui/alert-dialog";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import ServicesBlock from "./components/servicesBlock";
 import CalendarBlock from "./components/calendarBlock";
+import { useAuth } from "@/hooks/useAuth";
+import { useSearchParams } from "next/navigation";
 
 export default function controlPanelPage(){
+    const searchParams = useSearchParams()
+    const pageId = searchParams.get('') 
     const [pageOpened, setPageOpened] = useState('services')
     const [open, setOpen] = useState(false)
+    const { userData } = useAuth()
+    const [organizationData, setOrganizationData] = useState([])
+
+    useEffect(() => {
+        const getOrganizationData = async () => {
+            let access_token
+            access_token = localStorage.getItem("pioneer_token")
+            //setLoadingStatus(false)
+            console.log(access_token)
+            const response = await fetch(`http://localhost:8000/api/organizations/${pageId}`, {
+                method: 'GET',
+                headers: {
+                    "Authorization": `Bearer ${access_token}`,
+                }
+            })
+            if(response.ok){
+            console.log("OK",response)
+            const data = await response.json()
+            setOrganizationData(data)
+            }else if(!response.ok){
+                console.error("NOT OK",response)
+            }
+        }
+        getOrganizationData()
+    }, [userData, pageId])
+
+
     
-    const organizationData2 = {
+    /* const organizationData2 = {
         organizationId: 1337,
         userOrganization: true,
         userOrganizationStatus: 'approved',
@@ -46,7 +77,7 @@ export default function controlPanelPage(){
             }
         ]
     }
-    const [organizationData, setOrganizationData] = useState(organizationData2)
+    const [organizationData, setOrganizationData] = useState(organizationData2) */
 
 
     const renderContent = () => {
@@ -56,15 +87,15 @@ export default function controlPanelPage(){
                 <div className="control-panel">
                     <h2>Информация по организации:</h2>
                     <p>
-                        Наименование: {organizationData.organizationFullName} <br/>
-                        Краткое: {organizationData.organizationShortName} <br/>
+                        Наименование: {organizationData.name} <br/>
+                        Краткое: {organizationData.shortName} <br/>
                         Зарегистрирован в системе: {organizationData.organizationDateApproved} <br/>
                         ОГРН: {organizationData.orgOgrn} <br/>
                         ИНН: {organizationData.orgInn} <br/>
                         КПП: {organizationData.orgKpp} <br/>
                     </p>
                     <div className="flex flex-wrap gap-2 my-2">
-                        <p className="rounded border py-2 px-2 w-max">Тип: {organizationData.organizationServiceWash ? "Детейлинг студия" : organizationServiceTyre ? "Шиномонтаж" : ''}</p>
+                        {/* <p className="rounded border py-2 px-2 w-max">Тип: {organizationData.organizationServiceWash ? "Детейлинг студия" : organizationServiceTyre ? "Шиномонтаж" : ''}</p> */}
                         <p className="rounded border py-2 px-2 w-max">Количество услуг: {organizationData.countServices}</p>
                         <p className="rounded border py-2 px-2 w-max">Общая стоимость услуг: {organizationData.summaryPrice}₽</p>
                     </div>
@@ -111,7 +142,7 @@ export default function controlPanelPage(){
         {/* Кнопки для переключения режимов */}
         <div className="flex gap-4 " style={{ padding: '20px', display: 'flex', gap: '10px' }}>
             <button className={`underline ${pageOpened == 'control' ? 'font-bold' : ''}`} onClick={() => setPageOpened('control')}>Управление</button>
-            <button className={`underline ${pageOpened == 'services' ? 'font-bold' : ''}`} onClick={() => setPageOpened('services')}>Услуги</button>
+            <button className={`underline ${pageOpened == 'services' ? 'font-bold' : ''}`} onClick={() => {setPageOpened('services')}}>Услуги</button>
             <button className={`underline ${pageOpened == 'calendar' ? 'font-bold' : ''}`} onClick={() => setPageOpened('calendar')}>Календарь</button>
         </div>
         
@@ -119,22 +150,6 @@ export default function controlPanelPage(){
         <div className="px-3">
             {renderContent()}
         </div>
-        </div>
-    )
-    return(
-        <div className="page-enter" style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', background: '#fff' }}>
-            <TopBar backHref="/select-role" title="Моя организация" />
-            {{
-                'control': <div>Панель управления</div>,
-                'settings': <div>Настройки</div>,
-                'profile': <div>Профиль</div>
-                }[pageOpened] || <div>Страница не найдена</div>
-            }
-            <div className="flex flex-col px-2 py-2">
-                <Button className={'mb-2'}>Управление организацией</Button>
-                <Button className={'mb-2'}>Услуги</Button>
-                <Button>Календарь</Button>
-            </div>
         </div>
     )
 }

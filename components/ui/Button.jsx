@@ -1,7 +1,7 @@
-export default function Button({ children, onClick, className, variant = 'primary', fullWidth, customWidth, disabled, style, customFontSize=false }) {
+export default function Button({ children, onClick, className, variant = 'primary', fullWidth, customWidth, customPadding, disabled, style, customFontSize=false }) {
   const base = {
     width: customWidth ? customWidth : fullWidth ? '100%' : 'auto',
-    padding: customWidth ? customWidth : '14px 20px',
+    padding: customPadding ? customPadding : '14px 20px',
     borderRadius: '10px',
     fontFamily: 'var(--font-body)',
     fontSize: !customFontSize ? '15px' : 'auto',

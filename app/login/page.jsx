@@ -11,6 +11,12 @@ import Button from '@/components/ui/Button'
 export default function LoginPage() {
   const router = useRouter()
   const { userData } = useAuth()
+  function setCookie(name, value, days) {
+    const expires = new Date();
+    expires.setTime(expires.getTime() + (days * 24 * 60 * 60 * 1000));
+    const expiresStr = "expires=" + expires.toUTCString();
+    document.cookie = `${name}=${value}; ${expiresStr}; path=/`;
+  }
 
   useEffect(()=>{
     if(userData.length !== 0){
@@ -125,6 +131,8 @@ export default function LoginPage() {
       const data = await response.json()
       localStorage.setItem("pioneer_token", data.jwt.access)
       localStorage.setItem("pioneer_refresh_token", data.jwt.refresh)
+      setCookie('pioneer_token', data.jwt.access, 7);
+      setCookie('pioneer_refresh_token', data.jwt.refresh, 360);
       //router.push('/services')
     }else if(!response.ok){
       console.log("NOT OK",response)
@@ -151,7 +159,7 @@ export default function LoginPage() {
 
   return (
     <div className="page-enter" style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', background: '#fff' }}>
-      <TopBar backHref="/select-role" />
+      <TopBar backHref="/" />
 
       <div style={{ padding: '32px 24px', flex: 1 }}>
         <h1 className="fade-in" style={{

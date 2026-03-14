@@ -23,7 +23,7 @@ export default function OrgConnectPage() {
 
 
   useEffect(() => {
-    const verifyCode = async () => {
+    const getOrganizationData = async () => {
       let access_token
       access_token = localStorage.getItem("pioneer_token")
       //setLoadingStatus(false)
@@ -36,14 +36,15 @@ export default function OrgConnectPage() {
       })
       if(response.ok){
         console.log("OK",response)
+        setStatusAuth(true)
         const data = await response.json()
         setOrganizationData(data.results)
-        console.log(data)
+        console.log("dataOrg", data.results)
       }else if(!response.ok){
         console.log("NOT OK",response)
       }
     }
-    verifyCode()
+    getOrganizationData()
   }, [userData])
 
   const [formData, setFormData] = useState({})
@@ -94,105 +95,71 @@ export default function OrgConnectPage() {
   } */
 
   const [open, setOpen] = useState(false)
+  const [cancelOrgId, setCancelOrgId] = useState(null)
+  const [createOrg, setCreateOrg] = useState(false)
+  useEffect(()=>{
+    console.log("cancelOrgId", organizationData)
+  }, [cancelOrgId])
 
-  if(userData.userOrganization && userData.userOrganizationStatus !== 'approved'){
+  if(organizationData.length !== 0 && !createOrg /* && userData.userOrganizationStatus == 'approved' */){
     return(
       <div className="page-enter" style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', background: '#fff' }}>
         <TopBar backHref="/select-role" title="ОРГАНИЗАЦИЯМ-ПАРТНЁРАМ" />
-        <Card size="sm" className="mx-auto mt-6 w-[90%] max-w-sm relative">
-          <CardHeader className={'w-[255px]'}>
-            <CardTitle>Заявка номер: {userData.organizationId}</CardTitle>
-            <CardDescription>
-              {userData.organizationFullName}
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <p>
-              Дата создания: {userData.organizationDateRegistration}
-            </p>
-            <p>
-              Статус вашей заявки: <span className='font-bold'>
-                {userData.userOrganizationStatus == 'new' ? "Создана" : 
-                userData.userOrganizationStatus == 'inWork' ? "В работе" :
-                userData.userOrganizationStatus == 'approved' ? "Подтверждена" :
-                userData.userOrganizationStatus == 'canceled' ? "Отменена" : "Загрузка"
-                }</span>
-            </p>
-          </CardContent>
-          <CardFooter>
-            <Accordion collapsible>
-              <AccordionItem value="item-1">
-                <AccordionTrigger>Подробнее</AccordionTrigger>
-                <AccordionContent>
-                  Наименование организации: {userData.organizationFullName} <br/>
-                  Краткое наименование: {userData.organizationShortName} <br/>
-                  ИНН: {userData.orgInn} <br/>
-                  КПП: {userData.orgKpp} <br/>
-                  ОГРН: {userData.orgOgrn}
-                </AccordionContent>
-              </AccordionItem>
-            </Accordion>
-            <Button onClick={()=>{setOpen(true)}} variant = 'red' customWidth='10px 10px' customFontSize className={'absolute text-xs top-[10px] right-[10px] bg-black'}>
-              Отменить
-            </Button>
-          </CardFooter>
-        </Card>
-        <AlertDialog open={open} onOpenChange={setOpen}>
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogDescription>
-                Вы действительно хотите отменить заявку?
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogAction className={'bg-red-800 text-white'}>Удалить</AlertDialogAction>
-              <AlertDialogCancel>Назад</AlertDialogCancel>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
-      </div>
-    )
-  }if(organizationData /* && userData.userOrganizationStatus == 'approved' */){
-    return(
-      <div className="page-enter" style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', background: '#fff' }}>
-        <TopBar backHref="/select-role" title="ОРГАНИЗАЦИЯМ-ПАРТНЁРАМ" />
-        <Card size="sm" className="mx-auto mt-6 w-[90%] max-w-sm relative">
-          <CardHeader className={'w-[255px]'}>
-            <CardTitle>Заявка номер: {organizationData.id}</CardTitle>
-            <CardDescription>
-              {organizationData.name}
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <p>
-              Дата создания: {organizationData.created_at}
-            </p>
-            <p>
-              Дата Подтверждения: {userData.organizationDateRegistration}
-            </p>
-            <p>
-              Статус вашей заявки: <span className='font-bold text-green-900'>Подтверждена</span>
-            </p>
-          </CardContent>
-          <CardFooter>
-            <Accordion collapsible>
-              <AccordionItem value="item-1">
-                <AccordionTrigger>Подробнее</AccordionTrigger>
-                <AccordionContent>
-                  Наименование организации: {userData.organizationFullName} <br/>
-                  Краткое наименование: {userData.organizationShortName} <br/>
-                  ИНН: {userData.orgInn} <br/>
-                  КПП: {userData.orgKpp} <br/>
-                  ОГРН: {userData.orgOgrn}
-                </AccordionContent>
-              </AccordionItem>
-            </Accordion>
-            <Button onClick={()=>{setOpen(true)}} variant = 'red' customWidth='10px 10px' customFontSize className={'absolute text-xs top-[10px] right-[10px] bg-black'}>
-              Отменить
-            </Button>
-          </CardFooter>
-          <Button onClick={()=>{router.push('./dashboard')}} className={'mx-3'}>Панель управления</Button>
-        </Card>
+        {organizationData.map((organization)=>(
+          <Card key={organization.id} size="sm" className="mx-auto mt-6 w-[90%] max-w-sm relative">
+            <CardHeader className={'w-[255px]'}>
+              <CardTitle>Заявка номер: {organization.id}</CardTitle>
+              <CardDescription>
+                {organization.name}
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <p>
+                Дата создания: {organization.created_at}
+              </p>
+              {organization.organizationDateApproved !== null ? 
+                <p>
+                  Дата Подтверждения: {organization.organizationDateApproved}
+                </p> : null
+              }
+              <p>
+                Статус вашей заявки: {
+                organization.organizationStatus == 'pending' ? 
+                  <span className='font-bold'>В работе</span> : 
+                organization.organizationStatus == 'approved' ?
+                  <span className='font-bold text-green-900'>Подтверждена</span> :
+                organization.organizationStatus == 'rejected' ?
+                  <span className='font-bold text-red-900'>Отклонена</span> : <span>Загрузка</span> 
+              }
+              </p>
+            </CardContent>
+            <CardFooter>
+              <Accordion collapsible>
+                <AccordionItem value="item-1">
+                  <AccordionTrigger>Подробнее</AccordionTrigger>
+                  <AccordionContent>
+                    Полное наименование организации: {organization.name} <br/>
+                    Наименование организации: {organization.shortName} <br/>
+                    ИНН: {organization.orgInn} <br/>
+                    КПП: {organization.orgKpp} <br/>
+                    ОГРН: {organization.orgOgrn}
+                  </AccordionContent>
+                </AccordionItem>
+              </Accordion>
+              {organization.organizationStatus !== 'approved' ? 
+                <Button onClick={()=>{setOpen(true), setCancelOrgId(organization.id)}} variant = 'red' customWidth='10px 10px' customFontSize className={'absolute text-xs top-[10px] right-[10px] bg-black'}>
+                  Отменить
+                </Button> : null
+              }
+            </CardFooter>
+            {organization.organizationStatus == 'approved' ? 
+              <Button onClick={()=>{router.push(`./dashboard?=${organization.id}`)}} className={'mx-3'}>Панель управления</Button> : null
+            }
+          </Card>
+        ))}
+        <div className='px-5 mt-4'>
+          <Button onClick={()=>{setCreateOrg(true)}} fullWidth={true}>Добавить организацию</Button>
+        </div>
         <AlertDialog open={open} onOpenChange={setOpen}>
           <AlertDialogContent>
             <AlertDialogHeader>
@@ -212,10 +179,10 @@ export default function OrgConnectPage() {
 
   return (
     <div className="page-enter" style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', background: '#fff' }}>
-      <TopBar backHref="/select-role" title="ОРГАНИЗАЦИЯМ-ПАРТНЁРАМ" />
-      {loadingStatus == true ?
-        <span>Загрузка</span> :
-        loadingStatus == false && statusAuth == true ?
+      {createOrg ? <TopBar onClick={()=>{setCreateOrg(false)}} title="ОРГАНИЗАЦИЯМ-ПАРТНЁРАМ" /> : 
+        <TopBar backHref="/select-role" title="ОРГАНИЗАЦИЯМ-ПАРТНЁРАМ" />
+        }
+      {statusAuth || createOrg ?
         <div className="fade-in" style={{ padding: '20px 24px', textAlign: 'center', color: 'var(--text-muted)' }}>
           <form onSubmit={handleSubmit}>
             <h2 className='text-left mb-2 font-bold text-gray-800'>Наименование</h2>

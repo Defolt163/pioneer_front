@@ -16,7 +16,7 @@ const IconExit = () => (
   </svg>
 )
 
-export default function TopBar({ backHref, title }) {
+export default function TopBar({ backHref, title, onClick }) {
   const router = useRouter()
 
   return (
@@ -25,8 +25,8 @@ export default function TopBar({ backHref, title }) {
       padding: '14px 16px', borderBottom: '1px solid var(--border)',
       background: '#fff', minHeight: '52px',
     }}>
-      {backHref ? (
-        <Link href={backHref} style={{
+      {onClick || backHref ? (
+        <Link onClick={onClick} href={!onClick ? backHref : ""} style={{
           display: 'flex', alignItems: 'center', justifyContent: 'center',
           width: '36px', height: '36px', borderRadius: '8px',
           color: 'var(--primary)', textDecoration: 'none',

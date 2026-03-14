@@ -7,46 +7,34 @@ import { Input } from "@/componentsShadCN/ui/input";
 import { Table, TableBody, TableCaption, TableCell, TableFooter, TableHead, TableHeader, TableRow } from "@/componentsShadCN/ui/table";
 import { Textarea } from "@/componentsShadCN/ui/textarea";
 import { organizationService } from "@/services/organizationService";
-import { useState } from "react";
+import { useSearchParams } from "next/navigation";
+import { useEffect, useState } from "react";
 
 export default function ServicesBlock(){
-    const organizationData2 = {
-        organizationId: 1337,
-        userOrganization: true,
-        userOrganizationStatus: 'approved',
-        organizationFullName: "OOO IDINAHUI",
-        organizationShortName: "OBNAL",
-        organizationDateRegistration: '10/10/2026',
-        organizationDateApproved: '13/10/2026',
-        orgOgrn: 12345435212,
-        orgInn: 12312312353466765,
-        orgKpp: 7777436213476127,
-        countServices: 12,
-        summaryPrice: 12000,
-        organizationServiceWash: true,
-        organizationServiceTyre: false,
-        services: [
-            {
-                id: 0,
-                title: "Экспресс",
-                description: "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.",
-                duration: 30,
-                createdAt: '10/01/2026',
-                price: 400,
-                status: 'active'
-            },
-            {
-                id: 1,
-                title: "Комплекс",
-                description: 'Lorem ipnsum3232312312412',
-                duration: 60,
-                createdAt: '10/01/2026',
-                price: 600,
-                status: 'ghost'
+    const searchParams = useSearchParams()
+    const pageId = searchParams.get('') 
+    const [servicesData, setServicesData] = useState([])
+    async function getServices(){
+        let access_token
+        access_token = localStorage.getItem("pioneer_token")
+        const response = await fetch(`http://localhost:8000/api/services/?organization=${pageId}`, {
+            method: 'GET',
+            headers: {
+                "Authorization": `Bearer ${access_token}`,
             }
-        ]
+        })
+        if(response.ok){
+            console.log("OK",response)
+            const data = await response.json()
+            console.log(data)
+            setServicesData(data.results)
+        }else if(!response.ok){
+            console.error("NOT OK",response)
+        }
     }
-    const [organizationData, setOrganizationData] = useState(organizationData2)
+    useEffect(()=>{
+        getServices()
+    }, [pageId])
 
     const [isExpanded, setIsExpanded] = useState(false)
     
@@ -103,10 +91,29 @@ export default function ServicesBlock(){
     const cancelEditing = () => {
         setEditingServiceId(null)
     }
+
+    // /api/services/items/{id}
+    async function editService(){
+        let access_token
+        access_token = localStorage.getItem("pioneer_token")
+        const response = await fetch(`http://localhost:8000/api/services/items/${id}`, {
+            method: 'GET',
+            headers: {
+                "Authorization": `Bearer ${access_token}`,
+            }
+        })
+        if(response.ok){
+            const data = await response.json()
+            console.log(data)
+            setServicesData(data.results)
+        }else if(!response.ok){
+            console.error("NOT OK",response)
+        }
+    }
     
     return(
         <div className="services">
-            {organizationData.services.map((service)=>(
+            {servicesData.map((service)=>(
                 <Card key={service.id} size="sm" className="mx-auto mt-6 relative">
                     <CardHeader>
                         {editingServiceId === service.id ? (
@@ -147,7 +154,7 @@ export default function ServicesBlock(){
                     </CardHeader>
                     <CardContent>
                         <p>
-                            Дата создания: {service.createdAt}
+                            Дата создания: {service.created_at}
                         </p>
                         {editingServiceId === service.id ? (
                             <>
@@ -158,7 +165,7 @@ export default function ServicesBlock(){
                                     name="duration"
                                     value={editFormData.duration}
                                     onChange={handleInputChange}
-                                    placeholder="Продолжительность"
+                                    placeholder="Продолжительность (минуты)"
                                 />
                                 </div>
                                 <div className="mb-2">
@@ -175,10 +182,10 @@ export default function ServicesBlock(){
                         ) : (
                             <>
                                 <p>
-                            Продолжительность: {service.duration}
+                            Продолжительность: {service.duration}мин
                             </p>
                             <p>
-                                Стоимость: {service.price}
+                                Стоимость: {service.price}₽ 
                             </p>
                             </>
                         )
