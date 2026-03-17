@@ -31,6 +31,7 @@ export default function controlPanelPage(){
             if(response.ok){
             console.log("OK",response)
             const data = await response.json()
+            console.log("DATA ORG", data)
             setOrganizationData(data)
             }else if(!response.ok){
                 console.error("NOT OK",response)
@@ -95,7 +96,7 @@ export default function controlPanelPage(){
                         КПП: {organizationData.orgKpp} <br/>
                     </p>
                     <div className="flex flex-wrap gap-2 my-2">
-                        {/* <p className="rounded border py-2 px-2 w-max">Тип: {organizationData.organizationServiceWash ? "Детейлинг студия" : organizationServiceTyre ? "Шиномонтаж" : ''}</p> */}
+                        <p className="rounded border py-2 px-2 w-max">Тип: {organizationData.organizationType == 'wash' ? "Детейлинг студия" : organizationData.organizationType == 'tire' ? "Шиномонтаж" : ''}</p>
                         <p className="rounded border py-2 px-2 w-max">Количество услуг: {organizationData.countServices}</p>
                         <p className="rounded border py-2 px-2 w-max">Общая стоимость услуг: {organizationData.summaryPrice}₽</p>
                     </div>
@@ -118,7 +119,7 @@ export default function controlPanelPage(){
             
             case 'services':
                 return (
-                    <ServicesBlock/>
+                    <ServicesBlock organizationInfo={organizationData}/>
                 )
             
             case 'calendar':

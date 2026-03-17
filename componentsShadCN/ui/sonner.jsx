@@ -32,10 +32,10 @@ const Toaster = ({
       }}
       style={
         {
-          "--normal-bg": "var(--popover)",
+          "--normal-bg": "white",
           "--normal-text": "var(--popover-foreground)",
-          "--normal-border": "var(--border)",
-          "--border-radius": "var(--radius)"
+          "--normal-border": "gray",
+          "--border-radius": "5px"
         }
       }
       toastOptions={{
