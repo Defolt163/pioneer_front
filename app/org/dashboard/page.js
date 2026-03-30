@@ -16,27 +16,28 @@ export default function controlPanelPage(){
     const { userData } = useAuth()
     const [organizationData, setOrganizationData] = useState([])
 
-    useEffect(() => {
-        const getOrganizationData = async () => {
-            let access_token
-            access_token = localStorage.getItem("pioneer_token")
-            //setLoadingStatus(false)
-            console.log(access_token)
-            const response = await fetch(`http://localhost:8000/api/organizations/${pageId}`, {
-                method: 'GET',
-                headers: {
-                    "Authorization": `Bearer ${access_token}`,
-                }
-            })
-            if(response.ok){
-            console.log("OK",response)
-            const data = await response.json()
-            console.log("DATA ORG", data)
-            setOrganizationData(data)
-            }else if(!response.ok){
-                console.error("NOT OK",response)
+    const getOrganizationData = async () => {
+        let access_token
+        access_token = localStorage.getItem("pioneer_token")
+        //setLoadingStatus(false)
+        console.log(access_token)
+        const response = await fetch(`http://localhost:8000/api/organizations/${pageId}`, {
+            method: 'GET',
+            headers: {
+                "Authorization": `Bearer ${access_token}`,
             }
+        })
+        if(response.ok){
+        console.log("OK",response)
+        const data = await response.json()
+        console.log("DATA ORG", data)
+        setOrganizationData(data)
+        }else if(!response.ok){
+            console.error("NOT OK",response)
         }
+    }
+
+    useEffect(() => {
         getOrganizationData()
     }, [userData, pageId])
 
@@ -142,7 +143,7 @@ export default function controlPanelPage(){
         
         {/* Кнопки для переключения режимов */}
         <div className="flex gap-4 " style={{ padding: '20px', display: 'flex', gap: '10px' }}>
-            <button className={`underline ${pageOpened == 'control' ? 'font-bold' : ''}`} onClick={() => setPageOpened('control')}>Управление</button>
+            <button className={`underline ${pageOpened == 'control' ? 'font-bold' : ''}`} onClick={() => {setPageOpened('control'), getOrganizationData()}}>Управление</button>
             <button className={`underline ${pageOpened == 'services' ? 'font-bold' : ''}`} onClick={() => {setPageOpened('services')}}>Услуги</button>
             <button className={`underline ${pageOpened == 'calendar' ? 'font-bold' : ''}`} onClick={() => setPageOpened('calendar')}>Календарь</button>
         </div>

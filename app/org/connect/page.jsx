@@ -112,7 +112,7 @@ export default function OrgConnectPage() {
     return(
       <>
         <div className="page-enter" style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', background: '#fff' }}>
-          <TopBar backHref="/select-role" title="ОРГАНИЗАЦИЯМ-ПАРТНЁРАМ" />
+          <TopBar backHref="/" title="ОРГАНИЗАЦИЯМ-ПАРТНЁРАМ" />
           {organizationData.map((organization)=>(
             <Card key={organization.id} size="sm" className="mx-auto mt-6 w-[90%] max-w-sm relative">
               <CardHeader className={'w-[255px]'}>
@@ -155,11 +155,11 @@ export default function OrgConnectPage() {
                     </AccordionContent>
                   </AccordionItem>
                 </Accordion>
-                {organization.organizationStatus !== 'approved' ? 
+                {/* {organization.organizationStatus !== 'approved' ? 
                   <Button onClick={()=>{setOpen(true), setCancelOrgId(organization.id)}} variant = 'red' customWidth='10px 10px' customFontSize className={'absolute text-xs top-[10px] right-[10px] bg-black'}>
                     Отменить
                   </Button> : null
-                }
+                } */}
               </CardFooter>
               {organization.organizationStatus == 'approved' ? 
                 <Button onClick={()=>{router.push(`./dashboard?=${organization.id}`)}} className={'mx-3'}>Панель управления</Button> : null
@@ -169,7 +169,7 @@ export default function OrgConnectPage() {
           <div className='px-5 mt-4'>
             <Button onClick={()=>{setCreateOrg(true)}} fullWidth={true}>Добавить организацию</Button>
           </div>
-          <AlertDialog open={open} onOpenChange={setOpen}>
+          {/* <AlertDialog open={open} onOpenChange={setOpen}>
             <AlertDialogContent>
               <AlertDialogHeader>
                 <AlertDialogDescription>
@@ -181,7 +181,7 @@ export default function OrgConnectPage() {
                 <AlertDialogCancel>Назад</AlertDialogCancel>
               </AlertDialogFooter>
             </AlertDialogContent>
-          </AlertDialog>
+          </AlertDialog> */}
         </div>
         <Toaster/>
       </>

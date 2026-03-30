@@ -11,16 +11,18 @@ import { Toaster } from "@/componentsShadCN/ui/sonner";
 import { Spinner } from "@/componentsShadCN/ui/spinner";
 import { Table, TableBody, TableCaption, TableCell, TableFooter, TableHead, TableHeader, TableRow } from "@/componentsShadCN/ui/table";
 import { Textarea } from "@/componentsShadCN/ui/textarea";
+import { useAuth } from "@/hooks/useAuth";
 import { organizationService } from "@/services/organizationService";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
+import { authFetch } from '@/lib/authFetch'
 
 export default function ServicesBlock({organizationInfo}){
     const searchParams = useSearchParams()
     const pageId = searchParams.get('') 
     const [servicesData, setServicesData] = useState([])
-    async function getServices(){
+    /* async function getServices(){
         let access_token
         access_token = localStorage.getItem("pioneer_token")
         const response = await fetch(`http://localhost:8000/api/services/?organization=${pageId}`, {
@@ -34,8 +36,29 @@ export default function ServicesBlock({organizationInfo}){
             const data = await response.json()
             console.log(data)
             setServicesData(data.results)
-        }else if(!response.ok){
+        }else if(response.status == 401){
+            refreshAccessToken = useAuth()
+        }
+        else if(!response.ok){
             console.error("NOT OK",response)
+        }
+    } */
+    async function getServices() {
+        try {
+            const response = await authFetch(
+            `http://localhost:8000/api/services/?organization=${pageId}`
+            )
+
+            if (!response.ok) {
+                console.error("NOT OK", response)
+                return
+            }
+
+            const data = await response.json()
+            setServicesData(data.results)
+
+        } catch (err) {
+            console.error("ERROR", err)
         }
     }
     useEffect(()=>{
@@ -80,18 +103,79 @@ export default function ServicesBlock({organizationInfo}){
         }))
     }
 
-    // Функция для сохранения изменений
-    const saveChanges = (serviceId) => {
-        setOrganizationData(prev => ({
-        ...prev,
-        services: prev.services.map(service =>
-            service.id === serviceId
-            ? { ...service, ...editFormData }
-            : service
-        )
-        }))
-        setEditingServiceId(null) // Выходим из режима редактирования
-    }
+    // Функция сохранения
+    /* const saveChanges = async (serviceId) => {
+        try {
+            setIsLoading(true)
+            const access_token = localStorage.getItem("pioneer_token")
+            
+            const response = await fetch(`http://localhost:8000/api/services/${serviceId}/`, {
+                method: 'PATCH',
+                headers: {
+                    "Authorization": `Bearer ${access_token}`,
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(editFormData)
+            })
+
+            if (response.ok) {
+                const updatedService = await response.json()
+                // Локальные изменения
+                setServicesData(prev => {
+                    // prev - это массив услуг
+                    return prev.map(service =>
+                        service.id === serviceId ? updatedService : service
+                    )
+                })
+                setIsLoading(false)
+                toast("Изменения сохранены")
+
+                setEditingServiceId(null)
+            } else if (!response.ok){
+                setIsLoading(false)
+                toast("Ошибка сервера")
+            }
+        } catch{
+            toast("Ошибка")
+        }
+    } */
+
+    const saveChanges = async (serviceId) => {
+        try {
+            setIsLoading(true)
+
+            const response = await authFetch(
+            `http://localhost:8000/api/services/${serviceId}/`,
+            {
+                method: 'PATCH',
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(editFormData)
+            }
+            )
+
+            if (!response.ok) {
+            toast("Ошибка сервера")
+            return
+            }
+
+            const updatedService = await response.json()
+
+            setServicesData(prev =>
+            prev.map(service =>
+                service.id === serviceId ? updatedService : service
+            )
+            )
+
+            toast("Изменения сохранены")
+            setEditingServiceId(null)
+
+        } catch (err) {
+            console.error(err)
+            toast("Ошибка")
+        } finally {
+            setIsLoading(false)
+        }
+        }
 
     // Функция для отмены редактирования
     const cancelEditing = () => {
@@ -99,23 +183,74 @@ export default function ServicesBlock({organizationInfo}){
     }
 
     // /api/services/items/{id}
-    async function editService(){
+    /* async function editVisible(id, status){
+        setIsLoading(true)
         let access_token
         access_token = localStorage.getItem("pioneer_token")
-        const response = await fetch(`http://localhost:8000/api/services/items/${id}`, {
-            method: 'GET',
+        console.log("editFormData", editFormData)
+        const response = await fetch(`http://localhost:8000/api/services/${id}/`, {
+            method: 'PATCH',
             headers: {
                 "Authorization": `Bearer ${access_token}`,
-            }
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                "status": status == "active" ? "ghost" : "active"
+            })
         })
         if(response.ok){
-            const data = await response.json()
-            console.log(data)
-            setServicesData(data.results)
+            setIsLoading(false)
+            toast(`Услуга ${status == "active" ? "Скрыта" : "Активна"}`)
+            const updatedService = await response.json()
+            setServicesData(prev => {
+                // prev - это массив услуг
+                return prev.map(service =>
+                    service.id === id ? updatedService : service
+                )
+            })
         }else if(!response.ok){
-            console.error("NOT OK",response)
+            setIsLoading(false)
+            toast("Ошибка сервера")
         }
-    }
+    } */
+
+    async function editVisible(id, status) {
+        try {
+            setIsLoading(true)
+
+            const response = await authFetch(
+            `http://localhost:8000/api/services/${id}/`,
+            {
+                method: 'PATCH',
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                status: status === "active" ? "ghost" : "active"
+                })
+            }
+            )
+
+            if (!response.ok) {
+            toast("Ошибка сервера")
+            return
+            }
+
+            const updatedService = await response.json()
+
+            setServicesData(prev =>
+            prev.map(service =>
+                service.id === id ? updatedService : service
+            )
+            )
+
+            toast(`Услуга ${status === "active" ? "Скрыта" : "Активна"}`)
+
+        } catch (err) {
+            console.error(err)
+            toast("Ошибка")
+        } finally {
+            setIsLoading(false)
+        }
+        }
 
     const [addServiceStatus, setAddServiceStatus] = useState(false)
     const [formData, setFormData] = useState({})
@@ -129,12 +264,11 @@ export default function ServicesBlock({organizationInfo}){
         }))
     }
 
-    const connectCustomer = async (e) => {
+    /* const createService = async (e) => {
         e.preventDefault()
         let access_token
         access_token = localStorage.getItem("pioneer_token")
         setIsLoading(true)
-        alert(pageId)
         const response = await fetch('http://localhost:8000/api/services/', {
             method: 'POST',
             headers: {
@@ -152,13 +286,103 @@ export default function ServicesBlock({organizationInfo}){
             })
         })
         if(response.ok){
-            toast("Заявка создана")
-            getOrganizationData()
+            toast("Услуга создана")
+            getServices()
             setIsLoading(false)
             setAddServiceStatus(false)
         }else if(!response.ok){
             const error = await response.json()
             toast(`Произошла ошибка: ${error.error}`)
+            setIsLoading(false)
+        }
+    } */
+
+    const createService = async (e) => {
+        e.preventDefault()
+
+        try {
+            setIsLoading(true)
+
+            const response = await authFetch(
+            'http://localhost:8000/api/services/',
+            {
+                method: 'POST',
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                organization: organizationInfo.id,
+                title: formData.serviceName,
+                description: formData.serviceDescr,
+                price: formData.servicePrice,
+                duration: formData.serviceDuration,
+                status: "active",
+                is_active: true
+                })
+            }
+            )
+
+            if (!response.ok) {
+            const error = await response.json()
+            toast(`Ошибка: ${error.error}`)
+            return
+            }
+
+            toast("Услуга создана")
+            getServices()
+            setAddServiceStatus(false)
+
+        } catch (err) {
+            console.error(err)
+            toast("Ошибка")
+        } finally {
+            setIsLoading(false)
+        }
+    }
+
+    /* async function deleteService(id){
+        setIsLoading(true)
+        let access_token
+        access_token = localStorage.getItem("pioneer_token")
+        console.log("editFormData", editFormData)
+        const response = await fetch(`http://localhost:8000/api/services/${id}/`, {
+            method: 'DELETE',
+            headers: {
+                "Authorization": `Bearer ${access_token}`,
+                "Content-Type": "application/json"
+            }
+        })
+        if(response.ok){
+            setIsLoading(false)
+            toast(`Услуга удалена`)
+            getServices()
+        }else if(!response.ok){
+            setIsLoading(false)
+            toast("Ошибка сервера")
+        }
+    } */
+
+    async function deleteService(id) {
+        try {
+            setIsLoading(true)
+
+            const response = await authFetch(
+            `http://localhost:8000/api/services/${id}/`,
+            {
+                method: 'DELETE'
+            }
+            )
+
+            if (!response.ok) {
+            toast("Ошибка сервера")
+            return
+            }
+
+            toast("Услуга удалена")
+            getServices()
+
+        } catch (err) {
+            console.error(err)
+            toast("Ошибка")
+        } finally {
             setIsLoading(false)
         }
     }
@@ -168,7 +392,7 @@ export default function ServicesBlock({organizationInfo}){
             <div className="services">
                 {!addServiceStatus ? <Button className={'mb-4'} fullWidth={true} onClick={()=>{setAddServiceStatus(true)}}>Добавить услугу</Button> : null}
                 {addServiceStatus ? 
-                    <form onSubmit={connectCustomer}>
+                    <form onSubmit={createService}>
                         <Label className={'flex flex-col items-start justify-start mb-2'}>
                             <span className="text-left">Название услуги</span>
                             <Input id="serviceName"
@@ -359,11 +583,15 @@ export default function ServicesBlock({organizationInfo}){
                                             Изменить
                                         </Button>
                                         <AlertDialog>
-                                            <AlertDialogTrigger asChild>
-                                                <Button variant = 'red' customWidth='10px 10px' customFontSize className={'text-xs top-[10px] right-[10px] bg-black'}>
-                                                    Скрыть
-                                                </Button>
-                                            </AlertDialogTrigger>
+                                            {service.status == 'active' ? 
+                                                <AlertDialogTrigger asChild>
+                                                    <Button variant = 'red' customWidth='10px 10px' customFontSize className={'text-xs top-[10px] right-[10px] bg-black'}>
+                                                        Скрыть
+                                                    </Button>
+                                                </AlertDialogTrigger>
+                                            : <Button onClick={()=>{editVisible(service.id, service.status)}} variant = 'green' customWidth='10px 10px' customFontSize className={'text-xs top-[10px] right-[10px] bg-black'}>
+                                                    Показать
+                                                </Button>}
                                             <AlertDialogContent>
                                                 <AlertDialogHeader>
                                                 <AlertDialogDescription>
@@ -371,7 +599,7 @@ export default function ServicesBlock({organizationInfo}){
                                                 </AlertDialogDescription>
                                                 </AlertDialogHeader>
                                                 <AlertDialogFooter>
-                                                <AlertDialogAction className={'bg-red-800 text-white'}>Скрыть</AlertDialogAction>
+                                                <AlertDialogAction onClick={()=>{editVisible(service.id, service.status)}} className={'bg-red-800 text-white'}>Скрыть</AlertDialogAction>
                                                 <AlertDialogCancel>Отмена</AlertDialogCancel>
                                                 </AlertDialogFooter>
                                             </AlertDialogContent>
@@ -389,7 +617,7 @@ export default function ServicesBlock({organizationInfo}){
                                                 </AlertDialogDescription>
                                                 </AlertDialogHeader>
                                                 <AlertDialogFooter>
-                                                <AlertDialogAction className={'bg-red-800 text-white'}>Удалить</AlertDialogAction>
+                                                <AlertDialogAction onClick={()=>{deleteService(service.id)}} className={'bg-red-800 text-white'}>Удалить</AlertDialogAction>
                                                 <AlertDialogCancel>Отмена</AlertDialogCancel>
                                                 </AlertDialogFooter>
                                             </AlertDialogContent>
@@ -408,7 +636,6 @@ export default function ServicesBlock({organizationInfo}){
                     </div>
                 </div> : null
             }
-            <Toaster/>
         </>
     )
 }

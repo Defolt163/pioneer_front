@@ -19,8 +19,24 @@ export default function LoginPage() {
   }
 
   useEffect(()=>{
-    if(userData.length !== 0){
-      router.push('/services')
+    if (typeof window === 'undefined') return null
+
+    let deviceId = localStorage.getItem('device_id')
+
+    if (!deviceId) {
+      const userAgent = navigator.userAgent
+      const platform = navigator.platform
+      const random = Math.random().toString(36).substring(2)
+
+      deviceId = `${userAgent}-${platform}-${random}`
+      localStorage.setItem('device_id', deviceId)
+    }
+
+  }, [])
+
+  useEffect(()=>{
+    if(userData && userData.length !== 0){
+      router.push('/')
     }
   }, [userData])
 
@@ -53,20 +69,7 @@ export default function LoginPage() {
     }
 
     setSubmitting(true)
-    /* await fetch('http://localhost:8000/api/users/auth/email/register/send-code/', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ 
-        "email": email,
-        "privacy_policy_accepted": true
-      }),
-    })
-    .then((code) =>{
-        console.log("code sent", code)
-    }).catch(error=>{
-        console.log("Error", error)
-        alert("Произошла ошибка регистрации, повторите снова")
-    }) */
+
     const response = await fetch('http://127.0.0.1:8000/api/users/auth/send-code/', {
         method: 'POST',
         headers: {
@@ -88,16 +91,6 @@ export default function LoginPage() {
     }else if(!response.ok){
       console.log("NOT OK",response)
     }
-    /* setErrors({})
-
-    try {
-      await authService.sendEmailCode(email)
-      setCodeSent(true)
-    } catch (err) {
-      setErrors({ server: err.message || 'Ошибка отправки кода' })
-    } finally {
-      setSubmitting(false)
-    } */
   }
 
   const handleVerify = async () => {
@@ -113,6 +106,12 @@ export default function LoginPage() {
     setSubmitting(true)
     setErrors({})
 
+    const userAgent = window.navigator.userAgent;
+    const platform = window.navigator.platform;
+    const randomString = Math.random().toString(20).substring(2, 14) + Math.random().toString(20).substring(2, 14);
+  
+    const deviceID = `${userAgent}-${platform}-${randomString}`;
+
     const response = await fetch('http://localhost:8000/api/users/auth/verify-code/', {
         method: 'POST',
         headers: {
@@ -123,7 +122,7 @@ export default function LoginPage() {
           "email": email,
           "code": code,
           "privacy_policy_accepted": true,
-          "device_id": "my-device-123"
+          "device_id": deviceID
         }),
     })
     if(response.ok){
@@ -133,7 +132,7 @@ export default function LoginPage() {
       localStorage.setItem("pioneer_refresh_token", data.jwt.refresh)
       setCookie('pioneer_token', data.jwt.access, 7);
       setCookie('pioneer_refresh_token', data.jwt.refresh, 360);
-      //router.push('/services')
+      router.push('/')
     }else if(!response.ok){
       console.log("NOT OK",response)
       setErrors({ code: 'Неверный код. Попробуйте ещё раз.' })
@@ -141,18 +140,6 @@ export default function LoginPage() {
       setTimeout(() => setShake(false), 500)
       setSubmitting(false)
     }
-
-    /* try {
-      const data = await authService.verifyEmailCode(email, code)
-      login(email, data.token)
-      router.push('/services')
-    } catch (err) {
-      setErrors({ code: 'Неверный код. Попробуйте ещё раз.' })
-      setShake(true)
-      setTimeout(() => setShake(false), 500)
-    } finally {
-      setSubmitting(false)
-    } */
   }
 
   //if (loading) return null

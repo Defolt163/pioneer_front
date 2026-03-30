@@ -31,6 +31,10 @@ export default function Button({ children, onClick, className, variant = 'primar
     red: {
       background: '#9b0505',
       color: '#fff',
+    },
+    green: {
+      background: '#05a00d',
+      color: '#fff',
     }
   }
 
