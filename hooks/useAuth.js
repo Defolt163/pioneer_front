@@ -2,9 +2,12 @@
 
 import { useRouter } from 'next/navigation'
 import { useState, useEffect } from 'react'
+import { authService } from '@/services/authService'
 
-const AUTH_KEY = 'pioneer_user'
-const TOKEN_KEY = 'pioneer_token'
+const AUTH_KEY    = 'pioneer_user'
+const TOKEN_KEY   = 'pioneer_token'
+const REFRESH_KEY = 'pioneer_refresh_token'
+const SESSION_KEY = 'pioneer_session_id'
 
 export function useAuth() {
   const router = useRouter()

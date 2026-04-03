@@ -17,11 +17,15 @@ import { Textarea } from '@/componentsShadCN/ui/textarea'
 import { useAuth } from '@/hooks/useAuth'
 import { organizationService } from '@/services/organizationService'
 import Link from 'next/link'
+import { useAuth } from '@/hooks/useAuth'
+import { organizationService } from '@/services/organizationService'
+import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { toast } from 'sonner'
 
 export default function OrgConnectPage() {
+  const { userData } = useAuth()
   const { userData } = useAuth()
   const router = useRouter()
   const [statusAuth, setStatusAuth] = useState(false)

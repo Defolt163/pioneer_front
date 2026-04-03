@@ -1,12 +1,12 @@
 'use client'
-
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import TopBar from '@/components/ui/TopBar'
+import Footer from '@/components/ui/Footer'
+import Button from '@/components/ui/Button'
 import { useAuth } from '@/hooks/useAuth'
 import { authService } from '@/services/authService'
-import Button from '@/components/ui/Button'
 
 export default function LoginPage() {
   const router = useRouter()
@@ -42,7 +42,11 @@ export default function LoginPage() {
 
   const [email, setEmail]           = useState('')
   const [code, setCode]             = useState('')
+  const [userName, setUserName]     = useState('')
+  const [userPhone, setUserPhone]   = useState('')
+  const [agreed, setAgreed]         = useState(false)
   const [codeSent, setCodeSent]     = useState(false)
+  const [authType, setAuthType]     = useState('login')
   const [errors, setErrors]         = useState({})
   const [submitting, setSubmitting] = useState(false)
   const [shake, setShake]           = useState(false)
@@ -53,11 +57,9 @@ export default function LoginPage() {
     if (!loading && user) router.replace('/services')
   }, [user, loading]) */
 
-  const validateEmail = () => {
-    if (!email.trim()) return 'Введите email'
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return 'Некорректный email'
-    return null
-  }
+  const triggerShake = () => { setShake(true); setTimeout(() => setShake(false), 500) }
+
+  const isRegistration = authType === 'registration' || authType === 'complete_registration'
 
   const handleSendCode = async () => {
     const emailErr = validateEmail()
@@ -160,31 +162,15 @@ export default function LoginPage() {
         <div className={shake ? 'shake' : ''} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
 
           {/* Email */}
-          <div className="fade-in delay-1">
-            <label style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text)', display: 'block', marginBottom: '6px' }}>
-              Email
-            </label>
-            <input
-              type="email"
-              value={email}
+          <div className="fade-in">
+            <label className="block text-[13px] font-semibold text-txt mb-1.5">Email</label>
+            <input type="email" value={email}
               onChange={e => { setEmail(e.target.value); setErrors({}) }}
-              placeholder="example@mail.ru"
-              disabled={codeSent}
-              style={{
-                width: '100%', padding: '12px 14px',
-                border: `1.5px solid ${errors.email ? 'var(--danger)' : 'var(--border)'}`,
-                borderRadius: '10px', fontSize: '15px',
-                outline: 'none', color: 'var(--text)',
-                background: codeSent ? '#f9fafb' : '#fff',
-                fontFamily: 'var(--font-body)',
-                transition: 'border-color 0.2s',
-              }}
+              placeholder="example@mail.ru" disabled={codeSent}
+              className={`w-full px-[14px] py-3 rounded-[10px] text-[15px] text-txt outline-none font-body transition-colors border-[1.5px]
+                ${errors.email ? 'border-danger' : 'border-border'} ${codeSent ? 'bg-gray-50' : 'bg-white'}`}
             />
-            {errors.email && (
-              <div className="fade-in" style={{ marginTop: '5px', fontSize: '12px', color: 'var(--danger)' }}>
-                ⚠ {errors.email}
-              </div>
-            )}
+            {errors.email && <p className="fade-in mt-1 text-[12px] text-danger">⚠ {errors.email}</p>}
           </div>
 
           {authType == 'registration' ? 
@@ -240,49 +226,52 @@ export default function LoginPage() {
                   transition: 'border-color 0.2s',
                 }}
               />
-              {errors.code && (
-                <div className="fade-in" style={{ marginTop: '5px', fontSize: '12px', color: 'var(--danger)' }}>
-                  ⚠ {errors.code}
-                </div>
-              )}
-              <button
-                onClick={handleSendCode}
-                style={{
-                  marginTop: '8px', background: 'none', border: 'none',
-                  color: 'var(--primary)', fontSize: '13px',
-                  cursor: 'pointer', textDecoration: 'underline', padding: 0,
-                }}
-              >
+              {errors.code && <p className="fade-in mt-1 text-[12px] text-danger">⚠ {errors.code}</p>}
+              <button onClick={handleSendCode} className="mt-2 bg-transparent border-none text-primary text-[13px] cursor-pointer underline p-0">
                 Отправить код повторно
               </button>
             </div>
           )}
 
-          {/* Ошибка сервера */}
+          {/* Галочка — при регистрации */}
+          {isRegistration && codeSent && (
+            <>
+              <label className="fade-in flex items-start gap-2.5 cursor-pointer">
+                <input type="checkbox" checked={agreed} onChange={e => { setAgreed(e.target.checked); setErrors({}) }}
+                  className="w-[18px] h-[18px] mt-0.5 accent-primary cursor-pointer shrink-0" />
+                <span className="text-[13px] text-muted leading-relaxed">
+                  Принимаю условия{' '}
+                  <Link href="/privacy" className="text-primary underline">политики конфиденциальности</Link>
+                </span>
+              </label>
+              {errors.agreed && <p className="fade-in -mt-3 text-[12px] text-danger">⚠ {errors.agreed}</p>}
+            </>
+          )}
+
           {errors.server && (
-            <div className="fade-in" style={{
-              padding: '10px 14px', background: '#fef2f2',
-              borderRadius: '8px', border: '1px solid #fca5a5',
-              fontSize: '13px', color: '#dc2626',
-            }}>
+            <div className="fade-in px-[14px] py-2.5 bg-red-50 rounded-lg border border-red-300 text-[13px] text-red-600">
               ❌ {errors.server}
             </div>
           )}
 
-          {/* Кнопка */}
-          <div className="fade-in delay-2">
-            <Button
-              fullWidth
-              onClick={codeSent ? handleVerify : handleSendCode}
-              disabled={submitting}
-              style={{ padding: '16px', fontSize: '16px' }}
-            >
-              {submitting ? 'ЗАГРУЗКА...' : codeSent ? 'ВОЙТИ' : 'ПОЛУЧИТЬ КОД'}
-            </Button>
-          </div>
+          <Button fullWidth onClick={codeSent ? handleVerify : handleSendCode} disabled={submitting}
+            className="py-4 text-[16px] font-brand tracking-widest">
+            {submitting ? 'ЗАГРУЗКА...' : codeSent ? (isRegistration ? 'ЗАРЕГИСТРИРОВАТЬСЯ' : 'ВОЙТИ') : 'ПОЛУЧИТЬ КОД'}
+          </Button>
+
+          {!codeSent && (
+            <p className="fade-in text-center text-[13px] text-muted">
+              Нет аккаунта?{' '}
+              <button onClick={() => router.push('/register')}
+                className="text-primary font-semibold bg-transparent border-none cursor-pointer p-0 text-[13px]">
+                Зарегистрироваться
+              </button>
+            </p>
+          )}
 
         </div>
       </div>
+      <Footer />
     </div>
   )
 }
