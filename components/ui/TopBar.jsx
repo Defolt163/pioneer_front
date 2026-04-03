@@ -21,27 +21,16 @@ const IconUser = () => (
   </svg>
 )
 
-export default function TopBar({ backHref, title, onClick }) {
+export default function TopBar({ backHref, title, hideProfile = false }) {
   const router = useRouter()
   return (
-    <div style={{
-      display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-      padding: '14px 16px', borderBottom: '1px solid var(--border)',
-      background: '#fff', minHeight: '52px',
-    }}>
-      {onClick || backHref ? (
-        <Link onClick={onClick} href={!onClick ? backHref : ""} style={{
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          width: '36px', height: '36px', borderRadius: '8px',
-          color: 'var(--primary)', textDecoration: 'none',
-          background: 'var(--primary-light)',
-        }}>
+    <div className="flex items-center justify-between px-4 py-3 border-b border-border bg-white min-h-[52px]">
+        <p onClick={router.back} className="cursor-pointer flex items-center justify-center w-9 h-9 rounded-lg text-primary bg-primary-l no-underline">
           <IconBack />
-        </Link>
-      ) : <div className="w-9" />}
+        </p>
 
       {title && (
-        <span className="font-brand text-base font-bold text-txt tracking-wide">{title}</span>
+        <span className="font-brand text-sm font-bold tracking-wide">{title}</span>
       )}
 
       <div className="flex items-center gap-2">
@@ -58,7 +47,7 @@ export default function TopBar({ backHref, title, onClick }) {
           onClick={() => {
             localStorage.removeItem('pioneer_user')
             localStorage.removeItem('pioneer_token')
-            router.push('/select-role')
+            router.push('/login')
           }}
           className="flex items-center justify-center w-9 h-9 rounded-lg text-muted bg-gray-100 border-none cursor-pointer"
           title="Выход"

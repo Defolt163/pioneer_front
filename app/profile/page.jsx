@@ -102,7 +102,7 @@ export default function ProfilePage() {
 
   return (
     <div className="page-enter flex flex-col min-h-screen bg-white">
-      <TopBar backHref="/services" title="ПРОФИЛЬ" hideProfile />
+      <TopBar title="ПРОФИЛЬ" hideProfile />
 
       <div className="px-5 py-6 flex-1 flex flex-col gap-5">
 

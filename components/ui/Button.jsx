@@ -39,7 +39,11 @@ export default function Button({ children, onClick, className, variant = 'primar
   }
 
   return (
-    <button onClick={disabled ? undefined : onClick} disabled={disabled} className={`${base} ${variants[variant]} ${className}`}>
+    <button
+      onClick={disabled ? undefined : onClick}
+      style={{ ...base, ...variants[variant], ...style }}
+      className={className}
+    >
       {children}
     </button>
   )
