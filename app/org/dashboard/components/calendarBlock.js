@@ -40,16 +40,18 @@ export default function CalendarBlock(){
             )
 
             if (!response.ok) {
-            console.error("NOT OK", response)
-            return
+                //console.error("NOT OK", response)
+                toast("Ошибка сервера")
+                return
             }
 
             const data = await response.json()
             setInvoices(data.results)
-            console.log('data', data)
+            //console.log('data', data)
 
         } catch (err) {
-            console.error("ERROR", err)
+            //console.error("ERROR", err)
+            toast("Ошибка сервера")
         }
     }
     useEffect(()=>{
@@ -103,7 +105,7 @@ export default function CalendarBlock(){
 
         } catch (err) {
             console.error(err)
-            toast.error("Ошибка")
+            toast.error("Ошибка сервера")
         }
     }
 

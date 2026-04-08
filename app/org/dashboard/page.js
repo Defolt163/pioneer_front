@@ -14,7 +14,7 @@ import { authFetch } from "@/lib/authFetch";
 export default function controlPanelPage(){
     const searchParams = useSearchParams()
     const pageId = searchParams.get('') 
-    const [pageOpened, setPageOpened] = useState('services')
+    const [pageOpened, setPageOpened] = useState('control')
     const { userData } = useAuth()
     const [organizationData, setOrganizationData] = useState([])
     const [alertSheduleStatus, setAlertSheduleStatus] = useState(false)
@@ -64,7 +64,8 @@ export default function controlPanelPage(){
             setOrganizationData(data)
             getShedule()
         }else if(!response.ok){
-            console.error("NOT OK",response)
+            //console.error("NOT OK",response)
+            toast("Ошибка сервера")
         }
     }
 
@@ -121,10 +122,23 @@ export default function controlPanelPage(){
             
             default:
                 return (
-                <div className="not-found">
-                    <h2>Страница не найдена</h2>
-                    <p>Режим "{pageOpened}" не существует</p>
-                </div>
+                    <div className="control-panel">
+                        <h2>Информация по организации:</h2>
+                        <p>
+                            Наименование: {organizationData.name} <br/>
+                            Краткое: {organizationData.shortName} <br/>
+                            Зарегистрирован в системе: {organizationData.organizationDateApproved} <br/>
+                            ОГРН: {organizationData.orgOgrn} <br/>
+                            ИНН: {organizationData.orgInn} <br/>
+                            КПП: {organizationData.orgKpp} <br/>
+                        </p>
+                        <div className="flex flex-wrap gap-2 my-2">
+                            <p className="rounded border py-2 px-2 w-max">Тип: {organizationData.organizationType == 'wash' ? "Детейлинг студия" : organizationData.organizationType == 'tire' ? "Шиномонтаж" : ''}</p>
+                            <p className="rounded border py-2 px-2 w-max">Количество услуг: {organizationData.countServices}</p>
+                            <p className="rounded border py-2 px-2 w-max">Общая стоимость услуг: {organizationData.summaryPrice}₽</p>
+                        </div>
+                        <Button onClick={()=>{setPageOpened('shedule')}}>Настроить расписание</Button>
+                    </div>
                 )
         }
     }
