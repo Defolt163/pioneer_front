@@ -12,6 +12,7 @@ import { toast } from "sonner";
 import { authFetch } from "@/lib/authFetch";
 
 export default function controlPanelPage(){
+    const apiHost = process.env.NEXT_PUBLIC_API_URL
     const searchParams = useSearchParams()
     const pageId = searchParams.get('') 
     const [pageOpened, setPageOpened] = useState('control')
@@ -28,7 +29,7 @@ export default function controlPanelPage(){
         if(scheduleStatus != true){
             try {
                 const response = await authFetch(
-                `http://localhost:8000/api/organizations/schedules/`,
+                `${apiHost}/api/organizations/schedules/`,
                     {
                         method: 'GET',
                         headers: { 
@@ -55,7 +56,7 @@ export default function controlPanelPage(){
         if(servicesStatus !== true && scheduleStatus === "true"){
             try {
                 const response = await authFetch(
-                `http://localhost:8000/api/services/?organization=${pageId}`,
+                `${apiHost}/api/services/?organization=${pageId}`,
                     {
                         method: 'GET',
                         headers: { 
@@ -86,7 +87,7 @@ export default function controlPanelPage(){
         access_token = localStorage.getItem("pioneer_token")
         //setLoadingStatus(false)
         console.log(access_token)
-        const response = await fetch(`http://localhost:8000/api/organizations/${pageId}`, {
+        const response = await fetch(`${apiHost}/api/organizations/${pageId}`, {
             method: 'GET',
             headers: {
                 "Authorization": `Bearer ${access_token}`,

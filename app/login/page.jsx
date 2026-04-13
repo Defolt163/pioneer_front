@@ -10,6 +10,7 @@ import Button from '@/components/ui/Button'
 import { Checkbox } from '@/componentsShadCN/ui/checkbox'
 
 export default function LoginPage() {
+  const apiHost = process.env.NEXT_PUBLIC_API_URL
   const router = useRouter()
   const { userData } = useAuth()
   function setCookie(name, value, days) {
@@ -69,7 +70,7 @@ export default function LoginPage() {
 
     setSubmitting(true)
 
-    const response = await fetch('http://127.0.0.1:8000/api/users/auth/send-code/', {
+    const response = await fetch(`${apiHost}/api/users/auth/send-code/`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -120,7 +121,7 @@ export default function LoginPage() {
   
     const deviceID = `${userAgent}-${platform}-${randomString}`;
 
-    const response = await fetch('http://localhost:8000/api/users/auth/verify-code/', {
+    const response = await fetch(`${apiHost}/api/users/auth/verify-code/`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -155,7 +156,6 @@ export default function LoginPage() {
 
   return (
     <div className="page-enter" style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', background: '#fff' }}>
-      <TopBar backHref="/" />
 
       <div style={{ padding: '32px 24px', flex: 1 }}>
         <h1 className="fade-in" style={{

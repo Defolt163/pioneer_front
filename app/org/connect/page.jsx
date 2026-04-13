@@ -22,6 +22,7 @@ import { useEffect, useState } from 'react'
 import { toast } from 'sonner'
 
 export default function OrgConnectPage() {
+  const apiHost = process.env.NEXT_PUBLIC_API_URL
   const { userData } = useAuth()
   const router = useRouter()
   const [statusAuth, setStatusAuth] = useState(false)
@@ -31,7 +32,7 @@ export default function OrgConnectPage() {
     let access_token
     access_token = localStorage.getItem("pioneer_token")
 
-    const response = await fetch('http://localhost:8000/api/organizations/me', {
+    const response = await fetch(`${apiHost}/api/organizations/me`, {
         method: 'GET',
         headers: {
           "Authorization": `Bearer ${access_token}`,
@@ -95,7 +96,7 @@ export default function OrgConnectPage() {
     access_token = localStorage.getItem("pioneer_token")
     setIsLoading(true)
     console.log(formData.orgInn.length)
-    const response = await fetch('http://localhost:8000/api/organizations/', {
+    const response = await fetch(`${apiHost}/api/organizations/`, {
         method: 'POST',
         headers: {
           "Content-Type": "application/json",

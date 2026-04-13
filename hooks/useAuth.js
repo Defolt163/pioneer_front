@@ -90,7 +90,8 @@ export function useAuth() {
 import { useRouter } from 'next/navigation'
 import { useState, useEffect, useRef } from 'react'
 
-const API_URL = 'http://localhost:8000'
+//const API_URL = 'http://localhost:8000'
+const apiHost = process.env.NEXT_PUBLIC_API_URL
 
 export function useAuth() {
   const router = useRouter()
@@ -157,7 +158,7 @@ export function useAuth() {
         return false
       }
 
-      const response = await fetch(`${API_URL}/api/token/refresh/`, {
+      const response = await fetch(`${apiHost}/api/token/refresh/`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -222,7 +223,7 @@ export function useAuth() {
     setLoading(true)
 
     try {
-      const response = await authFetch(`${API_URL}/api/users/me/`)
+      const response = await authFetch(`${apiHost}/api/users/me/`)
 
       if (!response.ok) {
         throw new Error('Failed to fetch user')

@@ -12,6 +12,7 @@ import { authFetch } from '@/lib/authFetch'
 import { useSearchParams } from 'next/navigation';
 
 export default function CalendarBlock(){
+    const apiHost = process.env.NEXT_PUBLIC_API_URL
     const searchParams = useSearchParams()
     const pageId = searchParams.get('') 
     const [open, setOpen] = useState(false)
@@ -39,7 +40,7 @@ export default function CalendarBlock(){
     async function getServices() {
         try {
             const response = await authFetch(
-            `http://localhost:8000/api/bookings/calendar/${pageId}`
+            `${apiHost}/api/bookings/calendar/${pageId}`
             )
 
             if (!response.ok) {
@@ -91,7 +92,7 @@ export default function CalendarBlock(){
     async function bookingCancel(invoiceId) {
         try {
             const response = await authFetch(
-            `http://localhost:8000/api/bookings/${invoiceId}/cancel/`,
+            `${apiHost}/api/bookings/${invoiceId}/cancel/`,
             {
                 method: 'POST'
             }
@@ -137,7 +138,7 @@ export default function CalendarBlock(){
     async function bookingAccept(invoiceId, status) {
         try {
             const response = await authFetch(
-            `http://localhost:8000/api/bookings/${invoiceId}/`,
+            `${apiHost}/api/bookings/${invoiceId}/`,
             {
                 method: 'PATCH',
                 headers: {

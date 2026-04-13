@@ -19,6 +19,7 @@ import { toast } from "sonner";
 import { authFetch } from '@/lib/authFetch'
 
 export default function ServicesBlock({organizationInfo}){
+    const apiHost = process.env.NEXT_PUBLIC_API_URL
     const searchParams = useSearchParams()
     const pageId = searchParams.get('') 
     const [servicesData, setServicesData] = useState([])
@@ -46,7 +47,7 @@ export default function ServicesBlock({organizationInfo}){
     async function getServices() {
         try {
             const response = await authFetch(
-            `http://localhost:8000/api/services/?organization=${pageId}`
+            `${apiHost}/api/services/?organization=${pageId}`
             )
 
             if (!response.ok) {
@@ -146,7 +147,7 @@ export default function ServicesBlock({organizationInfo}){
             setIsLoading(true)
 
             const response = await authFetch(
-            `http://localhost:8000/api/services/${serviceId}/`,
+            `${apiHost}/api/services/${serviceId}/`,
             {
                 method: 'PATCH',
                 headers: { "Content-Type": "application/json" },
@@ -220,7 +221,7 @@ export default function ServicesBlock({organizationInfo}){
             setIsLoading(true)
 
             const response = await authFetch(
-            `http://localhost:8000/api/services/${id}/`,
+            `${apiHost}/api/services/${id}/`,
             {
                 method: 'PATCH',
                 headers: { "Content-Type": "application/json" },
@@ -305,7 +306,7 @@ export default function ServicesBlock({organizationInfo}){
             setIsLoading(true)
 
             const response = await authFetch(
-            'http://localhost:8000/api/services/',
+            `${apiHost}/api/services/`,
             {
                 method: 'POST',
                 headers: { "Content-Type": "application/json" },
@@ -366,7 +367,7 @@ export default function ServicesBlock({organizationInfo}){
             setIsLoading(true)
 
             const response = await authFetch(
-            `http://localhost:8000/api/services/${id}/`,
+            `${apiHost}/api/services/${id}/`,
             {
                 method: 'DELETE'
             }

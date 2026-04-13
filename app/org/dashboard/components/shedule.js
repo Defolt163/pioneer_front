@@ -10,6 +10,7 @@ import { use, useEffect, useState } from "react";
 import { toast } from "sonner";
 
 export default function Shedule({orgId}){
+    const apiHost = process.env.NEXT_PUBLIC_API_URL
     const [sheduleData, setSheduleData] = useState([])
     async function getShedule(weekDay, dayName) {
         let access_token
@@ -18,7 +19,7 @@ export default function Shedule({orgId}){
             setIsLoading(true)
 
             const response = await authFetch(
-            `http://localhost:8000/api/organizations/schedules/`,
+            `${apiHost}/api/organizations/schedules/`,
             {
                 method: 'GET',
                 headers: { 
@@ -100,7 +101,7 @@ export default function Shedule({orgId}){
             setIsLoading(true)
 
             const response = await authFetch(
-            `http://localhost:8000/api/organizations/schedules/`,
+            `${apiHost}/api/organizations/schedules/`,
             {
                 method: 'POST',
                 headers: { 
@@ -139,7 +140,7 @@ export default function Shedule({orgId}){
             setIsLoading(true)
 
             const response = await authFetch(
-            `http://localhost:8000/api/organizations/schedules/${id}/`,
+            `${apiHost}/api/organizations/schedules/${id}/`,
             {
                 method: 'PATCH',
                 headers: { 
