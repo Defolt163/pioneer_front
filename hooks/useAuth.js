@@ -190,7 +190,7 @@ export function useAuth() {
     }
   }
 
-  // 🔐 универсальный fetch с авто-refresh
+  // универсальный fetch с авто-refresh
   const authFetch = async (url, options = {}) => {
     let token = localStorage.getItem('pioneer_token')
 
@@ -199,7 +199,7 @@ export function useAuth() {
         Authorization: `Bearer ${token}`
       }
     })
-    // если access протух
+    // access протух
     if (response.status == 401) {
       const refreshed = await refreshAccessToken()
 
